@@ -52,3 +52,81 @@ Here's how to run the container with a mounted volume:
 docker run --platform linux/amd64 -it -v /path/to/local/solana/project:/solana-project --name solana-dev ubuntu
 ```
 Replace `/path/to/local/solana/project` with the actual path to your Solana project directory on your Mac. Inside the container, the project will be available at `/solana-project`.
+
+---
+
+## Troubleshooting Docker
+
+1. Remove the Current Docker Repository:
+
+The error message indicates that the repository for bookworm distribution is not found. If your distribution is not bookworm, you need to remove the incorrect repository.
+
+```bash
+sudo add-apt-repository --remove "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+```
+
+2. Update the Repository Information:
+
+Update your package database to ensure that the incorrect repository is removed.
+
+```bash
+sudo apt-get update
+```
+
+3. Add the Correct Docker Repository:
+
+You need to add the Docker repository that matches your system's distribution. First, ensure you have the necessary packages for apt to use a repository over HTTPS:
+
+```bash
+sudo apt-get install \
+  ca-certificates \
+  curl \
+  gnupg \
+  lsb-release
+```
+
+4. Then add the Docker GPG key:
+
+```bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+```
+
+5. Finally, set up the stable repository:
+
+```bash
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+6. Install Docker:
+
+Update your package database once more:
+
+```bash
+sudo apt-get update
+```
+
+7. Now, install Docker Engine, CLI, and Containerd:
+
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+
+8. Verify Docker Installation:
+
+Check that Docker is installed correctly by running the hello-world image:
+
+```bash
+sudo docker run hello-world
+```
+
+9. Set Up Docker to Run Without Sudo (optional):
+
+If you want to run Docker commands without sudo, add your user to the docker group:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+You will need to log out and back in for this to take effect, or you can use the newgrp docker command in your current session.
