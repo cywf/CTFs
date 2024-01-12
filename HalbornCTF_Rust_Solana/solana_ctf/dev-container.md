@@ -55,59 +55,57 @@ Replace `/path/to/local/solana/project` with the actual path to your Solana proj
 
 ---
 
-## Troubleshooting Docker
+# Troubleshooting Docker
 
-1. Remove the Current Docker Repository:
-
-The error message indicates that the repository for bookworm distribution is not found. If your distribution is not bookworm, you need to remove the incorrect repository.
+1. Remove the Current Docker Repository (if added):
 
 ```bash
-sudo add-apt-repository --remove "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo add-apt-repository --remove "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 ```
 
 2. Update the Repository Information:
-
-Update your package database to ensure that the incorrect repository is removed.
 
 ```bash
 sudo apt-get update
 ```
 
-3. Add the Correct Docker Repository:
+3. Add the Docker Repository for Debian:
 
-You need to add the Docker repository that matches your system's distribution. First, ensure you have the necessary packages for apt to use a repository over HTTPS:
+Ensure you have the necessary packages for apt to use a repository over HTTPS:
 
 ```bash
 sudo apt-get install \
+  apt-transport-https \
   ca-certificates \
   curl \
+  software-properties-common \
   gnupg \
   lsb-release
 ```
 
-4. Then add the Docker GPG key:
+4. Add the Docker GPG key for Debian:
 
 ```bash
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 ```
 
-5. Finally, set up the stable repository:
+5. Then, add the Docker repository for Debian:
 
 ```bash
 echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
 6. Install Docker:
 
-Update your package database once more:
+Update your package database again:
 
 ```bash
 sudo apt-get update
 ```
 
-7. Now, install Docker Engine, CLI, and Containerd:
+7. Install Docker Engine, CLI, and Containerd:
 
 ```bash
 sudo apt-get install docker-ce docker-ce-cli containerd.io
@@ -115,7 +113,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 8. Verify Docker Installation:
 
-Check that Docker is installed correctly by running the hello-world image:
+Test Docker to make sure it's installed correctly:
 
 ```bash
 sudo docker run hello-world
@@ -123,10 +121,9 @@ sudo docker run hello-world
 
 9. Set Up Docker to Run Without Sudo (optional):
 
-If you want to run Docker commands without sudo, add your user to the docker group:
+Add your user to the docker group:
 
 ```bash
 sudo usermod -aG docker $USER
 ```
-
-You will need to log out and back in for this to take effect, or you can use the newgrp docker command in your current session.
+Make sure you're running these commands on your Debian virtual machine and not on the host macOS system. If lsb_release -cs does not return the correct version or if bookworm is not yet officially supported by Docker, you may need to manually specify a supported Debian version in the repository URL, such as buster or bullseye
